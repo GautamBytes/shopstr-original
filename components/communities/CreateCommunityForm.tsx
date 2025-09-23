@@ -22,14 +22,16 @@ const CreateCommunityForm: React.FC<CreateCommunityFormProps> = ({
   existingCommunity,
   onSave,
 }) => {
-  const { control, handleSubmit, setValue, watch } = useForm<CommunityFormData>({
-    defaultValues: {
-      name: "",
-      description: "",
-      image: "",
-      d: uuidv4(),
-    },
-  });
+  const { control, handleSubmit, setValue, watch } = useForm<CommunityFormData>(
+    {
+      defaultValues: {
+        name: "",
+        description: "",
+        image: "",
+        d: uuidv4(),
+      },
+    }
+  );
 
   const watchImage = watch("image");
 
@@ -73,7 +75,12 @@ const CreateCommunityForm: React.FC<CreateCommunityFormProps> = ({
       <div className="flex flex-col gap-2">
         <label className="text-sm">Community Image</label>
         {watchImage && (
-          <Image src={watchImage} alt="Community image preview" width={200} className="rounded-lg" />
+          <Image
+            src={watchImage}
+            alt="Community image preview"
+            width={200}
+            className="rounded-lg"
+          />
         )}
         <FileUploaderButton
           className={`${SHOPSTRBUTTONCLASSNAMES} w-fit`}
