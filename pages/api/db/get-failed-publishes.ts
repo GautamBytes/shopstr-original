@@ -1,6 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getDbPool } from "@/utils/db/db-service";
 
+interface FailedRelayPublishRow {
+  event_id: string;
+  event_data: string | null;
+  relays: string;
+  retry_count: number;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -16,7 +23,7 @@ export default async function handler(
     client = await dbPool.connect();
 
     // Get all failed publishes with retry count < 5 (limit retries)
-    const result = await client.query(
+    const result = await client.query<FailedRelayPublishRow>(
       `SELECT event_id, event_data, relays, retry_count
        FROM failed_relay_publishes
        WHERE retry_count < 5
@@ -25,8 +32,11 @@ export default async function handler(
     );
 
     const failedPublishes = result.rows
-      .filter((row: any) => row.event_data)
-      .map((row: any) => ({
+      .filter(
+        (row): row is FailedRelayPublishRow & { event_data: string } =>
+          Boolean(row.event_data)
+      )
+      .map((row) => ({
         eventId: row.event_id,
         relays: JSON.parse(row.relays),
         event: JSON.parse(row.event_data),
